@@ -346,6 +346,34 @@ package body Tree_Walk is
    with Post => Kind (Process_Statements'Result) = I_Code_Block;
    --  Process list of statements
 
+   procedure Process_Declaration (N : Node_Id; Block : Irep)
+     with Pre => Nkind (N) in N_Declaration or else
+     Nkind (N) in N_Later_Decl_Item or else Nkind (N) in N_Pragma or else
+     Nkind (N) in N_Freeze_Entity;
+   --  Handles both a basic declaration and a declarative item.
+
+   function Process_Declarations (L : List_Id) return Irep
+   with Post => Kind (Process_Declarations'Result) = I_Code_Block;
+   --  Processes the declarations and is used for both a package specification
+   --  where only basic declarations are allowed (no subprogram bodies etc.)
+   --  and declarative parts where such declaratios are allowed.
+   --  The Gnat front end will check that only allowed declarations are used
+   --  where only basic declarations permitted.
+
+   procedure Register_Subprogram_Specification (N : Node_Id)
+   with Pre => Nkind (N) in N_Subprogram_Specification;
+   --  Insert the subprogram specification into the symbol table
+
+   procedure Do_Withed_Unit_Spec (N : Node_Id);
+   --  Enters the specification of the withed unit, N, into the symbol table
+
+   procedure Do_Withed_Units_Specs is new Sem.Walk_Library_Items
+     (Action => Do_Withed_Unit_Spec);
+   --  Traverses tree applying the procedure Do_With_Unit_Spec to all nodes
+   --  which are specifications of library units withed by the GNAT_Root unit
+   --  (that is, the body being compiled).
+   --  It starts with the unit Standard and finishes with GNAT_Root
+
    procedure Remove_Entity_Substitution (E : Entity_Id);
 
    function Create_Dummy_Irep return Irep;
@@ -1134,6 +1162,7 @@ package body Tree_Walk is
    procedure Process_Declaration (N : Node_Id; Block : Irep) is
    begin
       --  Deal with the declaration
+      Print_Node_Briefly (N);
       case Nkind (N) is
 
          --  basic_declarations  --
@@ -1290,6 +1319,7 @@ package body Tree_Walk is
       pragma Unreferenced (Not_Used);
    begin
       if Defining_Entity (N) = Stand.Standard_Standard then
+         null;
          Put_Line ("Standard");
          --  At the moment Standard is not processed - to be done.
       else
@@ -1308,6 +1338,7 @@ package body Tree_Walk is
                   --  and insert it into the symbol table.
                   Register_Subprogram_Specification (Specification (N));
                else
+                  null;
                   Put_Line ("Not a spec");
                end if;
             when N_Subprogram_Declaration =>
@@ -1320,14 +1351,15 @@ package body Tree_Walk is
                --  subprogram into the symbol table.
                Do_Subprogram_Declaration (N);
             when N_Package_Declaration =>
+               null;
                Put_Line ("Package declaration");
             when N_Package_Body =>
+               null;
                Put_Line ("Package body");
             when others =>
                Put_Line ("Not yet handled");
          end case;
 
-         --  Not_Used := Do_Compilation_Unit (N, Not_Used_Add_Start);
       end if;
 
    end Do_Withed_Unit_Spec;
@@ -4581,12 +4613,12 @@ package body Tree_Walk is
 
          --  Not sure the nex two should be here -
          --  should they be in declarations? --
-         when N_Itype_Reference =>
-            Do_Itype_Reference (N);
+--         when N_Itype_Reference =>
+--            Do_Itype_Reference (N);
 
-         when N_Freeze_Entity =>
-            --  Ignore, nothing to generate
-            null;
+--         when N_Freeze_Entity =>
+--            --  Ignore, nothing to generate
+--            null;
 
          when others =>
             Report_Unhandled_Node_Empty (N, "Process_Statement",
