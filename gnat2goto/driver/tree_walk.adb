@@ -305,6 +305,8 @@ package body Tree_Walk is
    function Get_Fresh_Type_Name (Actual_Type : Irep; Associated_Node : Node_Id)
                                 return Irep;
 
+   function Get_Import_Convention (N : Node_Id) return String;
+
    function Get_Variant_Union_Member_Name (N : Node_Id) return String;
 
    function Make_Increment
@@ -1704,25 +1706,6 @@ package body Tree_Walk is
                                     "function entity not defining identifier");
       end if;
 
-      if Is_Intrinsic_Subprogram (Func_Ent) then
-         if not Func_Declared then
-            return Report_Unhandled_Node_Irep
-              (N, "Do_Function_Call",
-               "Intrinsic function " &
-                 Unintern (Func_Name) &
-                 " is not in symbol table");
-         elsif Global_Symbol_Table (Func_Name).Value = CProver_Nil then
-            return Report_Unhandled_Node_Irep
-              (N, "Do_Function_Call",
-               "Intrinsic function " &
-                 Unintern (Func_Name) &
-                 " has no defined body");
-         end if;
-      end if;
-
-      --  Here, either it is not an intrinsic function or the intrinsic
-      --  function is in the symbol table and has a goto body defined.
-
       if Func_Declared then
          Func_Symbol  := Global_Symbol_Table (Func_Name);
          return Make_Side_Effect_Expr_Function_Call
@@ -1733,8 +1716,6 @@ package body Tree_Walk is
       else
          --  This can happen for RTS functions (body not parsed by us)
          --  TODO: handle RTS functions in a sane way
-         --  TJJ: I'm not sure this can happen now
-         --  we check for intrinsic functions as above.
          return Report_Unhandled_Node_Irep
            (N, "Do_Function_Call",
             "function " & Unintern (Func_Name) & " not in symbol table");
@@ -5255,6 +5236,35 @@ package body Tree_Walk is
       return Fresh_Symbol_Type;
    end Get_Fresh_Type_Name;
 
+   ---------------------------
+   -- Get_Import_Convention --
+   ---------------------------
+
+   function Get_Import_Convention (N : Node_Id) return String is
+      --  The gnat front end insists thet the parameters for
+      --  pragma Import are given in the specified order even
+      --  if named association is used:
+      --  1. Convention,
+      --  2. Enity,
+      --  3. Optional External_Name,
+      --  4. Optional Link_Name.
+      --  The first 2 parameters are mandatory and
+      --  for ASVAT models the External_Name is required.
+      --
+      --  The Convention parameter will always be present as
+      --  the first parameter.
+      Conv_Assoc : constant Node_Id :=
+        First (Pragma_Argument_Associations (N));
+      Conv_Name  : constant Name_Id := Chars (Conv_Assoc);
+      Convention : constant String  := Get_Name_String
+        (Chars (Expression (Conv_Assoc)));
+   begin
+      --  Double check the named parameter if named association is used.
+      pragma Assert (Conv_Name = No_Name or else
+                     Get_Name_String (Conv_Name) = "convention");
+      return Convention;
+   end Get_Import_Convention;
+
    -----------------------------------
    -- Get_Variant_Union_Member_Name --
    -----------------------------------
@@ -5792,8 +5802,7 @@ package body Tree_Walk is
             --  (if present) the third parameter of pragma Import.
             --  This is enforced by the gnat front-end.
             declare
-               Convention : constant String :=
-                 ASVAT.Modelling.Get_Import_Convention (N);
+               Convention : constant String := Get_Import_Convention (N);
 
                Is_Intrinsic : constant Boolean :=
                  Convention = "intrinsic";
