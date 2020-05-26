@@ -8,7 +8,7 @@ Calling function: Process_Pragma_Declaration
 Error message: Unsupported pragma: Precondition
 Nkind: N_Pragma
 --
-Occurs: 232 times
+Occurs: 231 times
 Calling function: Process_Declaration
 Error message: Unknown declaration kind
 Nkind: N_Validate_Unchecked_Conversion
@@ -16,6 +16,11 @@ Nkind: N_Validate_Unchecked_Conversion
 Occurs: 202 times
 Calling function: Process_Pragma_Declaration
 Error message: Unsupported pragma: Suppress initialization
+Nkind: N_Pragma
+--
+Occurs: 163 times
+Calling function: Process_Pragma_Declaration
+Error message: pragma Export: Multi-language analysis unsupported
 Nkind: N_Pragma
 --
 Occurs: 153 times
@@ -37,11 +42,6 @@ Occurs: 22 times
 Calling function: Do_Expression
 Error message: Index of string unsupported
 Nkind: N_Indexed_Component
---
-Occurs: 14 times
-Calling function: Process_Pragma_Declaration
-Error message: Unsupported pragma: Global
-Nkind: N_Pragma
 --
 Occurs: 13 times
 Calling function: Do_Expression
@@ -112,6 +112,11 @@ Occurs: 2 times
 Calling function: Do_Itype_Integer_Subtype
 Error message: Non-literal bound unsupported
 Nkind: N_Defining_Identifier
+--
+Occurs: 2 times
+Calling function: Process_Pragma_Declaration
+Error message: pragma Import: Multi-language analysis unsupported
+Nkind: N_Pragma
 --
 Occurs: 1 times
 Calling function: Do_Base_Range_Constraint
@@ -1745,7 +1750,7 @@ Error detected at REDACTED
 --
 Occurs: 3 times
 +===========================GNAT BUG DETECTED==============================+
-| GNU Ada (ada2goto) Assert_Failure tree_walk.adb:999                      |
+| GNU Ada (ada2goto) Assert_Failure tree_walk.adb:996                      |
 Error detected at REDACTED
 --
 Occurs: 2 times
@@ -1756,6 +1761,11 @@ Error detected at REDACTED
 Occurs: 2 times
 +===========================GNAT BUG DETECTED==============================+
 | GNU Ada (ada2goto) Constraint_Error Symbol_Table_Info.Symbol_Maps.Constant_Reference: key not in map|
+Error detected at REDACTED
+--
+Occurs: 1 times
++===========================GNAT BUG DETECTED==============================+
+| GNU Ada (ada2goto) Assert_Failure atree.adb:992                          |
 Error detected at REDACTED
 --
 Occurs: 1 times
@@ -2160,7 +2170,7 @@ Error detected at REDACTED
 --
 Occurs: 1 times
 +===========================GNAT BUG DETECTED==============================+
-| GNU Ada (ada2goto) Assert_Failure failed precondition from tree_walk.adb:72|
+| GNU Ada (ada2goto) Assert_Failure failed precondition from tree_walk.adb:73|
 Error detected at REDACTED
 --
 Occurs: 1 times
@@ -2235,15 +2245,10 @@ raised SYSTEM.ASSERTIONS.ASSERT_FAILURE : failed precondition from arrays.ads:51
 --
 Occurs: 2 times
 <========================>
-raised SYSTEM.ASSERTIONS.ASSERT_FAILURE : failed precondition from ireps.ads:1648
-
---
-Occurs: 2 times
-<========================>
 raised SYSTEM.ASSERTIONS.ASSERT_FAILURE : failed precondition from range_check.ads:55
 
 --
 Occurs: 1 times
 <========================>
-raised SYSTEM.ASSERTIONS.ASSERT_FAILURE : failed precondition from tree_walk.adb:72
+raised SYSTEM.ASSERTIONS.ASSERT_FAILURE : failed precondition from tree_walk.adb:73
 
